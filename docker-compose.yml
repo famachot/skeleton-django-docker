@@ -1,0 +1,38 @@
+version: '3.3'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: db-${PROJECT_NAME}
+    environment:
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_USER: ${DATABASE_USER}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_TCP_PORT: ${DATABASE_PORT}
+      MYSQL_UNIX_PORT: ${DATABASE_PORT}
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+    volumes:
+      - db_data:/var/lib/mysql
+    # restart: always
+
+  api:
+    build: .
+    image: api-${PROJECT_NAME}
+    container_name: api-content-${PROJECT_NAME}
+    command: django-admin startproject config . ### Primer comando para crear el proyecto (se debe compilar con build)
+    # command: python manage.py runserver 0.0.0.0:${API_PORT}
+    volumes:
+      - .:/app
+      - /repo_app/api_apoyos:/repo_app/api_apoyos
+    ports:
+      - "${API_PORT}:${API_PORT}"
+    depends_on:
+      - db
+    links:
+      - db
+    # restart: always
+volumes:
+  db_data:
+    
